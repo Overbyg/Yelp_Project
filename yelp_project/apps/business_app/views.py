@@ -6,10 +6,14 @@ from ..login_app.models import User #Imports User table from Login app
 
 # Returns a list of businesses that match the users search paramaters
 def index(request):
-    context = {
-        "business_key" : Business.objects.filter(bus_city=request.POST["bus_city"], bus_category=request.POST["bus_category"]), #.filter(bus_category=request.POST["bus_category"])
-        # "rating_key" : Review.objects.filter(business=Business.objects.filter(bus_city=request.POST["bus_city"], bus_category=request.POST["bus_category"]))
-    }
+    try:
+        context = {
+            "business_key" : Business.objects.filter(bus_city=request.POST["bus_city"], bus_category=request.POST["bus_category"]), #.filter(bus_category=request.POST["bus_category"])
+            # "rating_key" : Review.objects.filter(business=Business.objects.filter(bus_city=request.POST["bus_city"], bus_category=request.POST["bus_category"]))
+        }
+        return render(request, "business_app/index.html", context);
+    except KeyError:
+        return redirect("/search")
 
     # Calculates and returns average rating of business  #Placing on hold for now.
     
@@ -26,7 +30,6 @@ def index(request):
     # print x
     # print avg
     # print count
-    return render(request, "business_app/index.html", context)
 
 
 # This view returns the business that the user clicked on.
@@ -35,7 +38,7 @@ def bus_results(request, bus_id):
         "bus_id" : Business.objects.get(id=bus_id),
         "rating_key" : Review.objects.filter(business=Business.objects.get(id=bus_id))
     }
-    #Try/Except so no error is returned due to there being no reviews for newly created businesses.
+    #Try/Except so no error is returned since there are no reviews for newly created businesses.
     try:
         count = 0
         sum = 0
@@ -116,6 +119,10 @@ def destroy_review(request, review_id):
 #Destroys a user from the DB
 def destroy_user(request, user_id):
     User.objects.get(id=user_id).delete()
-    del request.session['id']
-    messages.success(request, "That user has been removed from the database.")
-    return redirect("/display/admin")
+    try:
+        del request.session['id']
+        messages.success(request, "That user has been removed from the database.")
+        return redirect("/display/admin")
+    except KeyError:
+        messages.success(request, "That user has been removed from the database.")
+        return redirect("/display/admin")
