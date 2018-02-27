@@ -2,4 +2,4 @@ Enter virtual environment by running:
     source <virtualEnvName>/Scripts/activate
 
 // Then run server by running:
-    python manager.py runserver
+    python manage.py runserver
